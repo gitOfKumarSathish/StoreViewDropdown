@@ -1,42 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import TreeView from '@mui/lab/TreeView';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TreeItem from '@mui/lab/TreeItem';
 import { data } from '../assets/data';
 
-interface RenderTree {
-    id: string;
-    name: string;
-    children?: readonly RenderTree[];
-}
-
-
-// {
-//     device1
-//   - session1
-//          - annotation1
-//          - annot2
-//   - session2
-
-//  device2
-//   - session1
-
-//  device3
-
-
-//  [
-//  device1: [session1: [annot1, annot2], sess2:{}]
-//   device1:
-
-
-//  ]
-// }
-// const local = {
-//     // name: 'Parent',
-//     // children: ['Child - 1', 'Child - 2', 'Child - 3'],
-//     'parent1': ['Child - 1', 'Child - 2', 'Child - 3' : ['child - 4', 'child - 5']],
-// };
 
 interface Child {
     id: string;
@@ -50,14 +18,36 @@ interface Device {
     children?: Child[];
 }
 
-// [
-//     {
-//         []
-//     },
-//     {
 
-//     }
-// ];
+const annotationSample = [
+    {
+        "device1": [ // level 1
+            {
+                "id": "1", // level 2
+                "bt": 123,
+                "tt": 456,
+                "name": "Sub device1",
+                "annotation": [  // level 2
+                    {
+                        "name": "templ", // level 3
+                        "bt": 1,
+                        "tt": 2,
+                        "id": 5,
+                    },
+                    {
+                        "name": "temp2", // level 3
+                        "bt": 12,
+                        "tt": 21,
+                        "id": 6,
+                    }
+                ]
+            }
+        ]
+    }
+];
+
+
+
 
 const mainer: Device[] = [
     {
@@ -90,13 +80,35 @@ const mainer: Device[] = [
 
 
 const RichObjectTreeView = () => {
-    const renderTree = (nodes: Device[]) => (
-        <>
-            {nodes?.map((node: Device) => {
-                return localArray(node);
-            })}
-        </>
-    );
+    const [nodeCollection, setNodeCollection] = useState<any>({});
+    useEffect(() => {
+        console.log('annotationSample', annotationSample);
+        annotationSample.map((annotation) => {
+            const checkSubChildExist = Array.isArray(annotation[Object.keys(annotation)]);
+            console.log('annotation', annotation);
+            console.log('boolean', checkSubChildExist);
+            console.log('annotation[Object.keys(annotation)', annotation[Object.keys(annotation)]);
+            passerFunction(Object.keys(annotation)[0], checkSubChildExist);
+            // console.log('annotation', Object.keys(annotation));
+        });
+    }, []);
+
+    const passerFunction = (node: string, subChild: boolean) => {
+        const sampleObject: any = {
+            id: Math.floor(Math.random() * 100),
+            name: node
+        };
+        if (subChild) {
+            sampleObject['children'] = {
+
+            };
+        }
+        setNodeCollection((prevState: any) => [{ ...prevState, ...sampleObject }]);
+        console.log('sampleObject', sampleObject);
+
+    };
+
+    console.log('nodeCollection', nodeCollection);
 
     const localArray = (node: Child) => {
         return (<TreeItem nodeId={node.id} label={node.name} key={node.id}>
@@ -113,7 +125,9 @@ const RichObjectTreeView = () => {
             defaultExpanded={['root']}
             defaultExpandIcon={<ChevronRightIcon />}
         >
-            {renderTree(mainer)}
+            {mainer?.map((node: Device) => {
+                return localArray(node);
+            })}
         </TreeView>
     );
 };
