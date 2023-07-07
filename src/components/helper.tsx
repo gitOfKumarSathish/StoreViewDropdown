@@ -16,10 +16,10 @@ interface Device {
     name: string;
     children?: Child[];
 }
-
+let index: number;
 const RichObjectTreeView = () => {
     const [deviceNodes, setDeviceNodes] = useState<Device[]>([]);
-    const [index, setIndex] = useState(0);
+    // const [index, setIndex] = useState(0);
 
     useEffect(() => {
         const transformData = (annotations: any[]) => {
@@ -64,21 +64,24 @@ const RichObjectTreeView = () => {
         setDeviceNodes(transformedNodes);
     }, []);
 
-    const renderTree = (nodes: Child) => (
-        <TreeItem key={nodes.id} nodeId={nodes.id} label={`${index + 1 || nodes.id}`}>
-            {Object.entries(nodes).map(([key, value]) => {
-                console.log('key', key);
-                if (key !== 'id' && key !== 'name' && key !== 'children') {
-                    return (
-                        <TreeItem key={`${nodes.id}-${key}`} nodeId={`${nodes.id}-${key}`} label={`${key}: ${value}`} />
-                    );
-                }
-                return null;
-            })}
-            {Array.isArray(nodes.children)
-                ? nodes.children.map((node) => renderTree(node))
-                : null}
-        </TreeItem>
+    const renderTree = (nodes: Child, i: number) => (
+        <>
+            {console.log('renderTree', nodes)}
+            <TreeItem key={nodes.id} nodeId={nodes.id} label={`${i + 1 || nodes.id}`}>
+                {Object.entries(nodes).map(([key, value], index) => {
+                    console.log('key', key);
+                    if (key !== 'id' && key !== 'name' && key !== 'children') {
+                        return (
+                            <TreeItem key={`${nodes.id}-${key}`} nodeId={`${nodes.id}-${key}`} label={`${key}: ${value}`} />
+                        );
+                    }
+                    return null;
+                })}
+                {Array.isArray(nodes.children)
+                    ? nodes.children.map((node, i) => renderTree(node, i))
+                    : null}
+            </TreeItem>
+        </>
     );
 
     return (
@@ -87,7 +90,7 @@ const RichObjectTreeView = () => {
             defaultCollapseIcon={<ExpandMoreIcon />}
             defaultExpandIcon={<ChevronRightIcon />}
         >
-            {deviceNodes.map((node) => renderTree(node))}
+            {deviceNodes.map((node, i) => renderTree(node, i))}
         </TreeView>
     );
 };
