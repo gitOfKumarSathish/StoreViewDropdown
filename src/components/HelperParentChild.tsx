@@ -17,9 +17,8 @@ interface Device {
     children?: Child[];
 }
 
-const RichObjectTreeView = () => {
+const HelperParentChild = () => {
     const [deviceNodes, setDeviceNodes] = useState<Device[]>([]);
-    const [index, setIndex] = useState(0);
 
     useEffect(() => {
         const transformData = (annotations: any[]) => {
@@ -38,8 +37,7 @@ const RichObjectTreeView = () => {
                         };
 
                         for (const field in element) {
-                            console.log('field', field);
-                            if (field !== 'annotation') {
+                            if (field !== 'id' && field !== 'name' && field !== 'annotation') {
                                 child[field] = element[field];
                             }
                         }
@@ -53,10 +51,16 @@ const RichObjectTreeView = () => {
                         children,
                     };
 
+                    for (const field in annotation) {
+                        if (field !== key) {
+                            deviceNode[field] = annotation[field];
+                        }
+                    }
+
                     transformedNodes.push(deviceNode);
                 }
             });
-
+            console.log('transformedNodes', transformedNodes);
             return transformedNodes;
         };
 
@@ -64,10 +68,9 @@ const RichObjectTreeView = () => {
         setDeviceNodes(transformedNodes);
     }, []);
 
-    const renderTree = (nodes: Child) => (
-        <TreeItem key={nodes.id} nodeId={nodes.id} label={`${index + 1 || nodes.id}`}>
+    const renderTree = (nodes: Device | Child) => (
+        <TreeItem key={nodes.id} nodeId={nodes.id} label={`${nodes.name} - ${nodes.id}`}>
             {Object.entries(nodes).map(([key, value]) => {
-                console.log('key', key);
                 if (key !== 'id' && key !== 'name' && key !== 'children') {
                     return (
                         <TreeItem key={`${nodes.id}-${key}`} nodeId={`${nodes.id}-${key}`} label={`${key}: ${value}`} />
@@ -92,4 +95,4 @@ const RichObjectTreeView = () => {
     );
 };
 
-export default React.memo(RichObjectTreeView);
+export default React.memo(HelperParentChild);
